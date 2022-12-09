@@ -23,11 +23,19 @@ namespace :rbenv do
       SSHKit.config.command_map.prefix[command.to_sym].unshift(rbenv_prefix)
     end
   end
+
+  task :use_version do
+    on release_roles(fetch(:rbenv_roles)) do |host|
+      rbenv_ruby = fetch(:rbenv_ruby)
+      execute "rbenv local #{rbenv_ruby}"
+    end
+  end
 end
 
 Capistrano::DSL.stages.each do |stage|
   after stage, 'rbenv:validate'
   after stage, 'rbenv:map_bins'
+  after stage, 'rbenv:use_version'
 end
 
 namespace :load do
